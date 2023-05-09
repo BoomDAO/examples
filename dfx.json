@@ -1,0 +1,16 @@
+{
+  "canisters": {
+    "remote_configs": {
+      "main": "src/remote_configs_backend/main.mo",
+      "type": "motoko"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
