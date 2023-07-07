@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "topup_backend": {
+      "main": "src/topup_backend/main.mo",
+      "type": "motoko"
+    },
+    "topup_frontend": {
+      "dependencies": [
+        "topup_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/topup_frontend/src/index.html"
+      },
+      "source": [
+        "src/topup_frontend/assets",
+        "dist/topup_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
