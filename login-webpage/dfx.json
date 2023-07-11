@@ -1,0 +1,21 @@
+{
+  "canisters": {
+    "login-webpage": {
+      "frontend": {
+        "entrypoint": "src/login-webpage/src/index.html"
+      },
+      "source": [
+        "src/login-webpage/assets",
+        "dist/login-webpage/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

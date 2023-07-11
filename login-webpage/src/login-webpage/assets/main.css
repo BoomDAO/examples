@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Open Sans', sans-serif;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+button[type="submit"] {
+    padding: 1vw;
+    background-color: white;
+    color: black;
+    border: 0.13vw solid black; /* Thicker border */
+    cursor: pointer;
+    font-size: 2vw; /* Font size relative to viewport width */
+    border-radius: 0.5vw;
+    transition: 0.3s;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    width: 40vw; /* Width of the button relative to viewport width */
+    height: 20vh; /* Width of the button relative to viewport width */
+    text-align: center;
+}
+
+button[type="submit"]:hover {
+    background-color: #f3f3f3;
+    box-shadow: 0 0.8vw 1.6vw 0 rgba(0,0,0,0.2);
+}
+
+.button-icon {
+    width: 5vw; /* Icon size relative to viewport width */
+    height: 5vw; /* Icon size relative to viewport width */
+    margin-right: 0.5vw;
+    vertical-align: middle;
+}
+
