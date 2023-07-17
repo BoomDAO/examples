@@ -53,7 +53,7 @@ actor TopUp {
   };
 
   public shared ({ caller }) func addCanister(info : CanisterInfo) : async () {
-    assert (caller != Principal.fromText(ENV.admin));
+    assert (caller == Principal.fromText(ENV.admin));
     _canisters := Trie.put(_canisters, Utils.keyT(info.canister_id), Text.equal, info.canister_name).0;
   };
 
