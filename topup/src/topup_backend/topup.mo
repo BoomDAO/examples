@@ -10,6 +10,10 @@ import ENV "env";
 
 
 actor TopUp {
+  type CanisterInfo = {
+    canister_id : Text;
+    canister_name : Text;
+  };
   private stable var _canisters : Trie.Trie<Text, Text> = Trie.empty(); //canister_id -> canister_name mapping
 
   private func sendCycles_(canister_id : Principal) : async () {
@@ -48,9 +52,9 @@ actor TopUp {
     };
   };
 
-  public shared ({ caller }) func addCanister(canister_id : Text, canister_name : Text) : async () {
+  public shared ({ caller }) func addCanister(info : CanisterInfo) : async () {
     assert (caller != Principal.fromText(ENV.admin));
-    _canisters := Trie.put(_canisters, Utils.keyT(canister_id), Text.equal, canister_name).0;
+    _canisters := Trie.put(_canisters, Utils.keyT(info.canister_id), Text.equal, info.canister_name).0;
   };
 
   public query func getCanisters() : async ([(Text, Text)]) {
