@@ -45,7 +45,7 @@ function sendMessage(message) {
 export async function GetIdentity() {
   try {
     // NFID
-    const APPLICATION_NAME = "BoomDAO";
+    const APPLICATION_NAME = "BOOM DAO";
     const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
     const AUTH_PATH =
       "/authenticate/?applicationName=" + APPLICATION_NAME + "&applicationLogo=" + APPLICATION_LOGO_URL + "#authorize";
