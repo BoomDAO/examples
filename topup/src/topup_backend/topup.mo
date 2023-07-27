@@ -20,7 +20,7 @@ actor TopUp {
     let management = actor (ENV.managementCanisterId) : actor {
       deposit_cycles : shared ({ canister_id : Principal }) -> async ();
     };
-    Cycles.add(2000000000000);
+    Cycles.add(5000000000000);
     return await management.deposit_cycles({canister_id = canister_id;});
   };
 
@@ -30,7 +30,7 @@ actor TopUp {
         cycleBalance : shared () -> async (Nat);
       };
       let balance = await canister.cycleBalance();
-      if (balance < 2_000_000_000_000) {
+      if (balance < 5_000_000_000_000) {
         await sendCycles_(Principal.fromText(i));
       };
     };
@@ -46,7 +46,7 @@ actor TopUp {
         cycleBalance : shared () -> async (Nat);
       };
       let balance = await canister.cycleBalance();
-      if (balance < 2_000_000_000_000) {
+      if (balance < 5_000_000_000_000) {
         await sendCycles_(Principal.fromText(i));
       };
     };
@@ -65,6 +65,9 @@ actor TopUp {
     return Buffer.toArray(b);
   };
 
-  // cron defined for 24-hrs period
-  let top_up = Timer.recurringTimer(#seconds (24 * 60 * 60), topupCanistersCron_);
+  // cron defined for 2-hrs period
+  let top_up_id = Timer.recurringTimer(#seconds (2 * 60 * 60), topupCanistersCron_);
+  public query func checkTopUpId() : async (Nat) { 
+    return top_up_id;
+  };
 };
