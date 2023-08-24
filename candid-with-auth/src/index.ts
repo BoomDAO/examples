@@ -61,7 +61,7 @@ async function main() {
               `left=${window.screen.width / 2 - 525 / 2}, ` +
               `top=${window.screen.height / 2 - 705 / 2},` +
               `toolbar=0,location=0,menubar=0,width=525,height=705`,
-            // derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
+            derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
             maxTimeToLive: BigInt(15 * 24 * 60 * 60 * 1000 * 1000 * 1000), //set to 15 days
             onSuccess: () => {
               resolve(true);
