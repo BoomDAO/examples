@@ -43,11 +43,11 @@
 }
 
 #header {
-  height: var(--header-height);
+  /* height: var(--header-height); */
   width: 100%;
   text-align: center;
   font-size: var(--font-md);
-  line-height: var(--header-height);
+  /* line-height: var(--header-height); */
   color: var(--darkest);
   border-bottom: 1px solid var(--dark);
 }

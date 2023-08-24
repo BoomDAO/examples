@@ -2,6 +2,7 @@ import { fetchActor, render, getCycles, getNames } from "./candid";
 import { Principal } from "@dfinity/principal";
 import { Actor, HttpAgent, ActorSubclass, CanisterStatus } from '@dfinity/agent';
 import { AuthClient } from "@dfinity/auth-client";
+import { AccountIdentifier } from "@dfinity/nns";
 
 async function main() {
   const params = new URLSearchParams(window.location.search);
@@ -41,6 +42,7 @@ async function main() {
       const loginButton = document.getElementById("login-button")!;
       const app = document.getElementById("app")!;
       const userId = document.getElementById("principal");
+      const accId = document.getElementById("account");
       loginButton.addEventListener("click", async () => {
         const APPLICATION_NAME = "BoomDAO";
         const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
@@ -86,6 +88,7 @@ async function main() {
           render(canisterId, actor, profiling);
           app!.style.display = "block";
           userId!.innerText = identity!.getPrincipal().toString();
+          accId!.innerText = AccountIdentifier.fromPrincipal({ principal : identity!.getPrincipal(), subAccount : undefined,}).toHex();
         }
       });
     }
