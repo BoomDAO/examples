@@ -1,0 +1,12 @@
+import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
+export interface _SERVICE {
+  'binding' : ActorMethod<[string, string], [] | [string]>,
+  'did_to_js' : ActorMethod<[string], [] | [string]>,
+  'subtype' : ActorMethod<
+    [string, string],
+    { 'Ok' : null } |
+      { 'Err' : string }
+  >,
+}

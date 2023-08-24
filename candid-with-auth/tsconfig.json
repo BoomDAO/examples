@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "baseUrl": "./",
+    "composite": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "lib": [
+      "dom",
+      "es2017"
+    ],
+    "module": "commonjs",
+    "outDir": "ts-out/",
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2017",
+    "resolveJsonModule": true,
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.css",
+    "src/**/*.json"
+  ],
+  "exclude": [
+    "**/*.test.ts"
+  ],
+}

@@ -1,0 +1,15 @@
+[package]
+name = "didjs"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+ic-cdk = "0.6"
+ic-cdk-macros = "0.6"
+candid = "0.8"
+serde = "1.0"
+serde_bytes = "0.11"
