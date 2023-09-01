@@ -329,15 +329,15 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
   const resultButtons = document.createElement('span');
   resultButtons.className = 'result-buttons';
   const buttonText = document.createElement('button');
-  buttonText.className = 'btn text-btn active';
+  buttonText.className = 'btn text-btn';
   buttonText.innerText = 'Text';
   const buttonUI = document.createElement('button');
-  buttonUI.className = 'btn ui-btn';
+  buttonUI.className = 'btn ui-btn active';
   buttonUI.innerText = 'UI';
   const buttonJSON = document.createElement('button');
   buttonJSON.className = 'btn json-btn';
   buttonJSON.innerText = 'JSON';
-  const buttonsArray = [buttonText, buttonUI, buttonJSON];
+  const buttonsArray = [buttonUI, buttonText, buttonJSON];
 
   resultDiv.appendChild(resultButtons);
   resultDiv.appendChild(left);
