@@ -16,8 +16,8 @@ var methods = {
   "getEntityConfigs": true,
   "createActionConfig": true,
   "createEntityConfig": true,
-  "updateEntityConfig": true,
-  "updateActionConfig": true,
+  "getActionConfig": true,
+  "getEntityConfig": true,
   "deleteActionConfig": true,
   "deleteEntityConfig": true,
   "grantEntityPermission": true,
@@ -39,7 +39,7 @@ function is_local(agent: HttpAgent) {
 }
 
 const agent = new HttpAgent();
-let identity : Identity | undefined = undefined;
+let identity: Identity | undefined = undefined;
 if (is_local(agent)) {
   agent.fetchRootKey();
 }
@@ -67,7 +67,7 @@ function getCanisterId(): Principal {
   throw new Error("Could not find the canister ID.");
 }
 
-export async function fetchActor(canisterId: Principal, _identity : Identity): Promise<ActorSubclass> {
+export async function fetchActor(canisterId: Principal, _identity: Identity): Promise<ActorSubclass> {
   let js;
   const maybeDid = new URLSearchParams(window.location.search).get(
     "did"
@@ -259,7 +259,7 @@ async function didToJs(candid_source: string): Promise<undefined | string> {
 }
 
 export function render(id: Principal, canister: ActorSubclass, profiling: bigint | undefined) {
-  if(document.getElementById('canisterId'))document.getElementById('canisterId')!.innerText = `${id}`;
+  if (document.getElementById('canisterId')) document.getElementById('canisterId')!.innerText = `${id}`;
   let profiler;
   if (typeof profiling !== 'undefined') {
     log(`Wasm instructions executed ${profiling} instrs.`);
@@ -268,8 +268,8 @@ export function render(id: Principal, canister: ActorSubclass, profiling: bigint
   const sortedMethods = Actor.interfaceOf(canister)._fields.sort(([a], [b]) => (a > b ? 1 : -1));
   for (const [name, func] of sortedMethods) {
     if(methods[name as keyof typeof methods] === true){
-      console.log(methods[name as keyof typeof methods]);
-      renderMethod(canister, name, func, profiler);
+    console.log(methods[name as keyof typeof methods]);
+    renderMethod(canister, name, func, profiler);
     }
   }
 }
@@ -288,7 +288,7 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
   methodLink.innerText = name;
   methodLink.href = `#${name}`;
   methodListItem.appendChild(methodLink);
-  if(document.getElementById('methods-list'))document.getElementById('methods-list')!.appendChild(methodListItem);
+  if (document.getElementById('methods-list')) document.getElementById('methods-list')!.appendChild(methodListItem);
 
   const inputContainer = document.createElement('div');
   inputContainer.className = 'input-container';
@@ -345,7 +345,7 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
   item.appendChild(resultDiv);
 
   const list = document.getElementById('methods')!;
-  if(list)list.append(item);
+  if (list) list.append(item);
 
   async function call(args: any[]) {
     left.className = 'left';
@@ -359,6 +359,99 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
     right.innerText = `(${duration}s)`;
     return result;
   }
+
+  async function callUpdate(updateName: string, args: any[]) {
+    left.className = 'left';
+    left.innerText = 'Waiting...';
+    right.innerText = '';
+    resultDiv.style.display = 'flex';
+    const tStart = Date.now();
+    const result = await canister[updateName](...args);
+    const duration = (Date.now() - tStart) / 1000;
+    right.innerText = `(${duration}s)`;
+    return result;
+  }
+
+  function callAndRenderUpdate(updateName: string, args: any[]) {
+    (async () => {
+      resultDiv.classList.remove('error');
+      const callResult = await callUpdate(updateName, args) as any;
+      let result: any;
+      if (idlFunc.retTypes.length === 0) {
+        result = [];
+      } else if (idlFunc.retTypes.length === 1) {
+        result = [callResult];
+      } else {
+        result = callResult;
+      }
+      left.innerHTML = '';
+
+      let activeDisplayType = '';
+      buttonsArray.forEach(button => {
+        if (button.classList.contains('active')) {
+          activeDisplayType = button.classList.value.replace(/btn (.*)-btn.*/g, '$1');
+        }
+      });
+      function setContainerVisibility(displayType: string) {
+        if (displayType === activeDisplayType) {
+          return 'flex';
+        }
+        return 'none';
+      }
+      function decodeSpace(str: string) {
+        return str.replace(/&nbsp;/g, ' ');
+      }
+
+      const textContainer = document.createElement('div');
+      textContainer.className = 'text-result';
+      containers.push(textContainer);
+      textContainer.style.display = setContainerVisibility('text');
+      left.appendChild(textContainer);
+      const text = encodeStr(IDL.FuncClass.argsToString(idlFunc.retTypes, result));
+      textContainer.innerHTML = decodeSpace(text);
+      const showArgs = encodeStr(IDL.FuncClass.argsToString(idlFunc.argTypes, args));
+      log(decodeSpace(`› ${name}${showArgs}`));
+      if (profiler && !idlFunc.annotations.includes('query')) {
+        await renderFlameGraph(profiler);
+      }
+      if (!idlFunc.annotations.includes('query')) {
+        postToPlayground(Actor.canisterIdOf(canister));
+      }
+      log(decodeSpace(text));
+
+      const uiContainer = document.createElement('div');
+      uiContainer.className = 'ui-result';
+      containers.push(uiContainer);
+      uiContainer.style.display = setContainerVisibility('ui');
+      left.appendChild(uiContainer);
+      idlFunc.retTypes.forEach((arg, ind) => {
+        const box = renderInput(arg);
+        box.render(uiContainer);
+        renderValue(arg, box, result[ind]);
+      });
+
+      const jsonContainer = document.createElement('div');
+      jsonContainer.className = 'json-result';
+      containers.push(jsonContainer);
+      jsonContainer.style.display = setContainerVisibility('json');
+      left.appendChild(jsonContainer);
+      jsonContainer.innerText = JSON.stringify(callResult, (k, v) => typeof v === 'bigint' ? v.toString() : v);
+    })().catch(err => {
+      resultDiv.classList.add('error');
+      left.innerText = err.message;
+      if (profiler && !idlFunc.annotations.includes('query')) {
+        const showArgs = encodeStr(IDL.FuncClass.argsToString(idlFunc.argTypes, args));
+        log(`[Error] ${name}${showArgs}`);
+        renderFlameGraph(profiler);
+      }
+      if (!idlFunc.annotations.includes('query')) {
+        postToPlayground(Actor.canisterIdOf(canister));
+      }
+      throw err;
+    });
+  };
+
+
 
   const containers: HTMLDivElement[] = [];
   function callAndRender(args: any[]) {
@@ -413,10 +506,33 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
       containers.push(uiContainer);
       uiContainer.style.display = setContainerVisibility('ui');
       left.appendChild(uiContainer);
+
+      //
+      const buttonUpdate = document.createElement('button');
+      buttonUpdate.className = 'btn';
+      buttonUpdate.innerText = 'Update';
+      if (name === "getActionConfig" || name == "getEntityConfig") {
+        left.appendChild(buttonUpdate);
+      }
+      const updateInputs: InputBox[] = [];
       idlFunc.retTypes.forEach((arg, ind) => {
         const box = renderInput(arg);
         box.render(uiContainer);
         renderValue(arg, box, result[ind]);
+        updateInputs.push(box);
+      });
+
+      buttonUpdate.addEventListener('click', () => {
+        const args = updateInputs.map(arg => arg.parse());
+        const isReject = updateInputs.some(arg => arg.isRejected());
+        if (isReject) {
+          return;
+        }
+        if(name === "getActionConfig") {
+          callAndRenderUpdate("updateActionConfig", args);
+        } else if (name === "getEntityConfig") {
+          callAndRenderUpdate("updateEntityConfig", args);
+        }
       });
 
       const jsonContainer = document.createElement('div');
@@ -495,7 +611,7 @@ function log(content: Element | string) {
     line.innerHTML = content;
   }
 
-  if(outputEl)outputEl.appendChild(line);
+  if (outputEl) outputEl.appendChild(line);
   line.scrollIntoView();
 }
 
