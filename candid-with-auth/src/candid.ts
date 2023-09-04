@@ -267,9 +267,9 @@ export function render(id: Principal, canister: ActorSubclass, profiling: bigint
   }
   const sortedMethods = Actor.interfaceOf(canister)._fields.sort(([a], [b]) => (a > b ? 1 : -1));
   for (const [name, func] of sortedMethods) {
-    if(methods[name as keyof typeof methods] === true){
-    console.log(methods[name as keyof typeof methods]);
-    renderMethod(canister, name, func, profiler);
+    if (methods[name as keyof typeof methods] === true) {
+      console.log(methods[name as keyof typeof methods]);
+      renderMethod(canister, name, func, profiler);
     }
   }
 }
@@ -372,82 +372,12 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
     return result;
   }
 
-  function callAndRenderUpdate(updateName: string, args: any[]) {
+  function callAndRenderUpdate(updateName: string, _args: any[], queryArgs: any[]) {
     (async () => {
       resultDiv.classList.remove('error');
-      const callResult = await callUpdate(updateName, args) as any;
-      let result: any;
-      if (idlFunc.retTypes.length === 0) {
-        result = [];
-      } else if (idlFunc.retTypes.length === 1) {
-        result = [callResult];
-      } else {
-        result = callResult;
-      }
-      left.innerHTML = '';
-
-      let activeDisplayType = '';
-      buttonsArray.forEach(button => {
-        if (button.classList.contains('active')) {
-          activeDisplayType = button.classList.value.replace(/btn (.*)-btn.*/g, '$1');
-        }
-      });
-      function setContainerVisibility(displayType: string) {
-        if (displayType === activeDisplayType) {
-          return 'flex';
-        }
-        return 'none';
-      }
-      function decodeSpace(str: string) {
-        return str.replace(/&nbsp;/g, ' ');
-      }
-
-      const textContainer = document.createElement('div');
-      textContainer.className = 'text-result';
-      containers.push(textContainer);
-      textContainer.style.display = setContainerVisibility('text');
-      left.appendChild(textContainer);
-      const text = encodeStr(IDL.FuncClass.argsToString(idlFunc.retTypes, result));
-      textContainer.innerHTML = decodeSpace(text);
-      const showArgs = encodeStr(IDL.FuncClass.argsToString(idlFunc.argTypes, args));
-      log(decodeSpace(`› ${name}${showArgs}`));
-      if (profiler && !idlFunc.annotations.includes('query')) {
-        await renderFlameGraph(profiler);
-      }
-      if (!idlFunc.annotations.includes('query')) {
-        postToPlayground(Actor.canisterIdOf(canister));
-      }
-      log(decodeSpace(text));
-
-      const uiContainer = document.createElement('div');
-      uiContainer.className = 'ui-result';
-      containers.push(uiContainer);
-      uiContainer.style.display = setContainerVisibility('ui');
-      left.appendChild(uiContainer);
-      idlFunc.retTypes.forEach((arg, ind) => {
-        const box = renderInput(arg);
-        box.render(uiContainer);
-        renderValue(arg, box, result[ind]);
-      });
-
-      const jsonContainer = document.createElement('div');
-      jsonContainer.className = 'json-result';
-      containers.push(jsonContainer);
-      jsonContainer.style.display = setContainerVisibility('json');
-      left.appendChild(jsonContainer);
-      jsonContainer.innerText = JSON.stringify(callResult, (k, v) => typeof v === 'bigint' ? v.toString() : v);
+      await callUpdate(updateName, _args) as any;
+      callAndRender(queryArgs);
     })().catch(err => {
-      resultDiv.classList.add('error');
-      left.innerText = err.message;
-      if (profiler && !idlFunc.annotations.includes('query')) {
-        const showArgs = encodeStr(IDL.FuncClass.argsToString(idlFunc.argTypes, args));
-        log(`[Error] ${name}${showArgs}`);
-        renderFlameGraph(profiler);
-      }
-      if (!idlFunc.annotations.includes('query')) {
-        postToPlayground(Actor.canisterIdOf(canister));
-      }
-      throw err;
     });
   };
 
@@ -523,15 +453,15 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
       });
 
       buttonUpdate.addEventListener('click', () => {
-        const args = updateInputs.map(arg => arg.parse());
+        const updateArgs = updateInputs.map(arg => arg.parse());
         const isReject = updateInputs.some(arg => arg.isRejected());
         if (isReject) {
           return;
         }
-        if(name === "getActionConfig") {
-          callAndRenderUpdate("updateActionConfig", args);
+        if (name === "getActionConfig") {
+          callAndRenderUpdate("updateActionConfig", updateArgs, args);
         } else if (name === "getEntityConfig") {
-          callAndRenderUpdate("updateEntityConfig", args);
+          callAndRenderUpdate("updateEntityConfig", updateArgs, args);
         }
       });
 
