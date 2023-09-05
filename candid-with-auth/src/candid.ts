@@ -16,8 +16,8 @@ var methods = {
   "getEntityConfigs": true,
   "createActionConfig": true,
   "createEntityConfig": true,
-  "getActionConfig": true,
-  "getEntityConfig": true,
+  "editActionConfig": true,
+  "editEntityConfig": true,
   "deleteActionConfig": true,
   "deleteEntityConfig": true,
   "grantEntityPermission": true,
@@ -441,7 +441,7 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
       const buttonUpdate = document.createElement('button');
       buttonUpdate.className = 'btn';
       buttonUpdate.innerText = 'Update';
-      if (name === "getActionConfig" || name == "getEntityConfig") {
+      if (name === "editActionConfig" || name == "editEntityConfig") {
         left.appendChild(buttonUpdate);
       }
       const updateInputs: InputBox[] = [];
@@ -458,9 +458,9 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
         if (isReject) {
           return;
         }
-        if (name === "getActionConfig") {
+        if (name === "editActionConfig") {
           callAndRenderUpdate("updateActionConfig", updateArgs, args);
-        } else if (name === "getEntityConfig") {
+        } else if (name === "editEntityConfig") {
           callAndRenderUpdate("updateEntityConfig", updateArgs, args);
         }
       });
