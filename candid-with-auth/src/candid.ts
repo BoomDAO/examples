@@ -14,12 +14,12 @@ const names: Record<number, string> = {};
 var methods = {
   "getActionConfigs": true,
   "getEntityConfigs": true,
-  "createActionConfig": true,
-  "createEntityConfig": true,
+  "createAction": true,
+  "createConfig": true,
   "updateEntityConfig": true,
   "updateActionConfig": true,
-  "deleteActionConfig": true,
-  "deleteEntityConfig": true,
+  "deleteAction": true,
+  "deleteConfig": true,
   "grantEntityPermission": true,
   "removeEntityPermission": true,
   "grantGlobalPermission": true,
@@ -29,7 +29,11 @@ var methods = {
   "processAction": true,
   "getAllUserWorldActions": true,
   "getAllUserWorldEntities": true,
-  "resetConfig": true
+  "resetConfig": true,
+  "getAllActions": true,
+  "getAllConfigs": true,
+  "getAllUserActionStates": true,
+  "getAllUserEntities": true
 }
 
 function is_local(agent: HttpAgent) {
