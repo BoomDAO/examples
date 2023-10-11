@@ -12,14 +12,14 @@ declare var d3: any;
 
 const names: Record<number, string> = {};
 var methods = {
-  "getActionConfigs": true,
-  "getEntityConfigs": true,
-  "createActionConfig": true,
-  "createEntityConfig": true,
-  "editActionConfig": true,
-  "editEntityConfig": true,
-  "deleteActionConfig": true,
-  "deleteEntityConfig": true,
+  "getAllActions": true,
+  "getAllConfigs": true,
+  "createAction": true,
+  "createConfig": true,
+  "editAction": true,
+  "editConfig": true,
+  "deleteAction": true,
+  "deleteConfig": true,
   "grantEntityPermission": true,
   "removeEntityPermission": true,
   "grantGlobalPermission": true,
@@ -29,7 +29,8 @@ var methods = {
   "processAction": true,
   "getAllUserWorldActions": true,
   "getAllUserWorldEntities": true,
-  "resetConfig": true
+  "resetConfig": true,
+  "resetActions": true
 }
 
 function is_local(agent: HttpAgent) {
@@ -441,7 +442,7 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
       const buttonUpdate = document.createElement('button');
       buttonUpdate.className = 'btn';
       buttonUpdate.innerText = 'Update';
-      if (name === "editActionConfig" || name == "editEntityConfig") {
+      if (name === "editAction" || name == "editConfig") {
         left.appendChild(buttonUpdate);
       }
       const updateInputs: InputBox[] = [];
@@ -458,10 +459,10 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
         if (isReject) {
           return;
         }
-        if (name === "editActionConfig") {
-          callAndRenderUpdate("updateActionConfig", updateArgs, args);
-        } else if (name === "editEntityConfig") {
-          callAndRenderUpdate("updateEntityConfig", updateArgs, args);
+        if (name === "editAction") {
+          callAndRenderUpdate("updateAction", updateArgs, args);
+        } else if (name === "editConfig") {
+          callAndRenderUpdate("updateConfig", updateArgs, args);
         }
       });
 
