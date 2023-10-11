@@ -12,12 +12,12 @@ declare var d3: any;
 
 const names: Record<number, string> = {};
 var methods = {
-  "getActionConfigs": true,
-  "getEntityConfigs": true,
+  "getAllActions": true,
+  "getAllConfigs": true,
   "createAction": true,
   "createConfig": true,
-  "updateEntityConfig": true,
-  "updateActionConfig": true,
+  "editAction": true,
+  "editConfig": true,
   "deleteAction": true,
   "deleteConfig": true,
   "grantEntityPermission": true,
@@ -30,10 +30,7 @@ var methods = {
   "getAllUserWorldActions": true,
   "getAllUserWorldEntities": true,
   "resetConfig": true,
-  "getAllActions": true,
-  "getAllConfigs": true,
-  "getAllUserActionStates": true,
-  "getAllUserEntities": true
+  "resetActions": true
 }
 
 function is_local(agent: HttpAgent) {
@@ -43,7 +40,7 @@ function is_local(agent: HttpAgent) {
 }
 
 const agent = new HttpAgent();
-let identity : Identity | undefined = undefined;
+let identity: Identity | undefined = undefined;
 if (is_local(agent)) {
   agent.fetchRootKey();
 }
@@ -71,7 +68,7 @@ function getCanisterId(): Principal {
   throw new Error("Could not find the canister ID.");
 }
 
-export async function fetchActor(canisterId: Principal, _identity : Identity): Promise<ActorSubclass> {
+export async function fetchActor(canisterId: Principal, _identity: Identity): Promise<ActorSubclass> {
   let js;
   const maybeDid = new URLSearchParams(window.location.search).get(
     "did"
@@ -263,7 +260,7 @@ async function didToJs(candid_source: string): Promise<undefined | string> {
 }
 
 export function render(id: Principal, canister: ActorSubclass, profiling: bigint | undefined) {
-  if(document.getElementById('canisterId'))document.getElementById('canisterId')!.innerText = `${id}`;
+  if (document.getElementById('canisterId')) document.getElementById('canisterId')!.innerText = `${id}`;
   let profiler;
   if (typeof profiling !== 'undefined') {
     log(`Wasm instructions executed ${profiling} instrs.`);
@@ -271,7 +268,7 @@ export function render(id: Principal, canister: ActorSubclass, profiling: bigint
   }
   const sortedMethods = Actor.interfaceOf(canister)._fields.sort(([a], [b]) => (a > b ? 1 : -1));
   for (const [name, func] of sortedMethods) {
-    if(methods[name as keyof typeof methods] === true){
+    if (methods[name as keyof typeof methods] === true) {
       console.log(methods[name as keyof typeof methods]);
       renderMethod(canister, name, func, profiler);
     }
@@ -292,7 +289,7 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
   methodLink.innerText = name;
   methodLink.href = `#${name}`;
   methodListItem.appendChild(methodLink);
-  if(document.getElementById('methods-list'))document.getElementById('methods-list')!.appendChild(methodListItem);
+  if (document.getElementById('methods-list')) document.getElementById('methods-list')!.appendChild(methodListItem);
 
   const inputContainer = document.createElement('div');
   inputContainer.className = 'input-container';
@@ -349,7 +346,7 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
   item.appendChild(resultDiv);
 
   const list = document.getElementById('methods')!;
-  if(list)list.append(item);
+  if (list) list.append(item);
 
   async function call(args: any[]) {
     left.className = 'left';
@@ -363,6 +360,29 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
     right.innerText = `(${duration}s)`;
     return result;
   }
+
+  async function callUpdate(updateName: string, args: any[]) {
+    left.className = 'left';
+    left.innerText = 'Waiting...';
+    right.innerText = '';
+    resultDiv.style.display = 'flex';
+    const tStart = Date.now();
+    const result = await canister[updateName](...args);
+    const duration = (Date.now() - tStart) / 1000;
+    right.innerText = `(${duration}s)`;
+    return result;
+  }
+
+  function callAndRenderUpdate(updateName: string, _args: any[], queryArgs: any[]) {
+    (async () => {
+      resultDiv.classList.remove('error');
+      await callUpdate(updateName, _args) as any;
+      callAndRender(queryArgs);
+    })().catch(err => {
+    });
+  };
+
+
 
   const containers: HTMLDivElement[] = [];
   function callAndRender(args: any[]) {
@@ -417,10 +437,33 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
       containers.push(uiContainer);
       uiContainer.style.display = setContainerVisibility('ui');
       left.appendChild(uiContainer);
+
+      //
+      const buttonUpdate = document.createElement('button');
+      buttonUpdate.className = 'btn';
+      buttonUpdate.innerText = 'Update';
+      if (name === "editAction" || name == "editConfig") {
+        left.appendChild(buttonUpdate);
+      }
+      const updateInputs: InputBox[] = [];
       idlFunc.retTypes.forEach((arg, ind) => {
         const box = renderInput(arg);
         box.render(uiContainer);
         renderValue(arg, box, result[ind]);
+        updateInputs.push(box);
+      });
+
+      buttonUpdate.addEventListener('click', () => {
+        const updateArgs = updateInputs.map(arg => arg.parse());
+        const isReject = updateInputs.some(arg => arg.isRejected());
+        if (isReject) {
+          return;
+        }
+        if (name === "editAction") {
+          callAndRenderUpdate("updateAction", updateArgs, args);
+        } else if (name === "editConfig") {
+          callAndRenderUpdate("updateConfig", updateArgs, args);
+        }
       });
 
       const jsonContainer = document.createElement('div');
@@ -499,7 +542,7 @@ function log(content: Element | string) {
     line.innerHTML = content;
   }
 
-  if(outputEl)outputEl.appendChild(line);
+  if (outputEl) outputEl.appendChild(line);
   line.scrollIntoView();
 }
 
