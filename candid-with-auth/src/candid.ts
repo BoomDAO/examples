@@ -30,7 +30,9 @@ var methods = {
   "getAllUserWorldActions": true,
   "getAllUserWorldEntities": true,
   "resetConfig": true,
-  "resetActions": true
+  "resetActions": true,
+  "getAllUserEntities": true,
+  "getAllUserActionStates": true
 }
 
 function is_local(agent: HttpAgent) {
