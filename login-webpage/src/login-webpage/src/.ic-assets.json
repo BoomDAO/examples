@@ -46,7 +46,7 @@
             //   See: https://github.com/WebAssembly/content-security-policy/blob/main/proposals/CSP.md.
             // - We added img-src data: because data: images are used often.
             // - frame-ancestors: none mitigates clickjacking attacks. See https://owasp.org/www-community/attacks/Clickjacking.
-            "Content-Security-Policy": "default-src 'self';script-src 'self' 'unsafe-eval';connect-src *;img-src *;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors *;form-action 'self';upgrade-insecure-requests;",
+            "Content-Security-Policy": "default-src 'self' https://nfid.one/;script-src 'self' 'unsafe-eval';connect-src *;img-src *;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors *;form-action 'self';upgrade-insecure-requests;",
 
             // Security: The permissions policy disables all features for security reasons. If your site needs such permissions, activate them.
             // To configure permissions go here https://www.permissionspolicy.com/
@@ -54,7 +54,7 @@
 
             // Security: Mitigates clickjacking attacks.
             // See: https://owasp.org/www-community/attacks/Clickjacking.
-            "X-Frame-Options": "ALLOW-FROM https://superfind.io https://superfind.io/Home",
+            "X-Frame-Options": "ALLOW-FROM https://nfid.one/",
 
             // Security: Avoids forwarding referrer information to other origins.
             // See: https://owasp.org/www-project-secure-headers/#referrer-policy.

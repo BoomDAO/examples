@@ -1,8 +1,10 @@
 import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent } from "@dfinity/agent";
 import { MyStorage } from "./MyStorage";
+import { NFID } from "@nfid/embed";
 
 let identity = null;
+let targetCanisterIds = [];
 let storage = new MyStorage();
 
 function toggleElements(isDisabled, isHidden) {
@@ -32,45 +34,46 @@ document.getElementById("click2").addEventListener("click", handleButtonClick);
 
 
 // open web socket
-const webSocket = new WebSocket('ws://localhost:8080/Data');
+const websocket = new WebSocket('ws://localhost:8080/Data');
 
-webSocket.addEventListener('open', () => {
+websocket.addEventListener('open', () => {
   console.log('WebSocket connection established.');
+  let websocketMessage = {type : "fetchCanisterIds", content : null}
+  sendWebsocketMessage(JSON.stringify(websocketMessage));
 });
 
-function sendMessage(message) {
-  webSocket.send(message);
+websocket.addEventListener('message', (event) => {
+  let websocketMessage = JSON.parse(event.data);
+
+  switch(websocketMessage.type) {
+    case "targetCanisterIds":
+      targetCanisterIds = JSON.parse(websocketMessage.content);
+      console.log("These are the target canisters: " + JSON.stringify(targetCanisterIds));
+      break;
+    default:
+      break;
+  }
+});
+
+function sendWebsocketMessage(websocketMessage) {
+  websocket.send(websocketMessage);
 }
 
 export async function GetIdentity() {
   try {
-    // NFID
-    const APPLICATION_NAME = "BOOM DAO";
-    const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
-    const AUTH_PATH =
-      "/authenticate/?applicationName=" + APPLICATION_NAME + "&applicationLogo=" + APPLICATION_LOGO_URL + "#authorize";
-    const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
+    const nfid = await NFID.init({
+      application: {
+        name: "BOOM DAO",
+        logo: "https://i.postimg.cc/L4f471FF/logo.png"
+      },
+    });
 
     if (identity == null) {
-      const authClient = await AuthClient.create({
-        storage: storage,
-        keyType: 'Ed25519',
+      identity = await nfid.getDelegation({
+        targets: targetCanisterIds,
+        derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
+        maxTimeToLive: BigInt(24) * BigInt(3_600_000_000_000) // 24 hrs
       });
-
-      await new Promise((resolve, reject) => {
-        authClient.login({
-          identityProvider: NFID_AUTH_URL,
-          windowOpenerFeatures:
-            `left=${window.screen.width / 2 - 525 / 2}, ` +
-            `top=${window.screen.height / 2 - 705 / 2},` +
-            `toolbar=0,location=0,menubar=0,width=525,height=705`,
-          derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
-          onSuccess: resolve,
-          onError: reject,
-        });
-      });
-
-      identity = authClient.getIdentity();
     }
 
     console.log("referrer=" + document.referrer);
@@ -80,8 +83,10 @@ export async function GetIdentity() {
       return;
     }
 
-    sendMessage(JSON.stringify(identity));
-    window.close();
+    console.log("This is your identity: " + JSON.stringify(identity))
+    let websocketMessage = {type : "identityJson", content : JSON.stringify(identity)}
+    sendWebsocketMessage(JSON.stringify(websocketMessage));
+    // window.close();
 
   } catch (e) {
     console.error(e);

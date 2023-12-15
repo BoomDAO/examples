@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "metrics_backend": {
+      "main": "src/metrics_backend/main.mo",
+      "type": "motoko"
+    },
+    "metrics_frontend": {
+      "dependencies": [
+        "metrics_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/metrics_frontend/src/index.html"
+      },
+      "source": [
+        "src/metrics_frontend/assets",
+        "dist/metrics_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

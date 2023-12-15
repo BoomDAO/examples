@@ -18,6 +18,7 @@ var methods = {
   "createConfig": true,
   "editAction": true,
   "editConfig": true,
+  "editEntity": true,
   "deleteAction": true,
   "deleteConfig": true,
   "grantEntityPermission": true,
@@ -270,10 +271,10 @@ export function render(id: Principal, canister: ActorSubclass, profiling: bigint
   }
   const sortedMethods = Actor.interfaceOf(canister)._fields.sort(([a], [b]) => (a > b ? 1 : -1));
   for (const [name, func] of sortedMethods) {
-    if (methods[name as keyof typeof methods] === true) {
+    // if (methods[name as keyof typeof methods] === true) {
       console.log(methods[name as keyof typeof methods]);
       renderMethod(canister, name, func, profiler);
-    }
+    // }
   }
 }
 
@@ -444,7 +445,7 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
       const buttonUpdate = document.createElement('button');
       buttonUpdate.className = 'btn';
       buttonUpdate.innerText = 'Update';
-      if (name === "editAction" || name == "editConfig") {
+      if (name === "editAction" || name == "editConfig" || name == "editEntity") {
         left.appendChild(buttonUpdate);
       }
       const updateInputs: InputBox[] = [];
@@ -462,9 +463,11 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
           return;
         }
         if (name === "editAction") {
-          callAndRenderUpdate("updateAction", updateArgs, args);
+          callAndRenderUpdate("createAction", updateArgs, args);
         } else if (name === "editConfig") {
-          callAndRenderUpdate("updateConfig", updateArgs, args);
+          callAndRenderUpdate("createConfig", updateArgs, args);
+        } else if (name === "editEntity") {
+          callAndRenderUpdate("createEntity", updateArgs, args);
         }
       });
 

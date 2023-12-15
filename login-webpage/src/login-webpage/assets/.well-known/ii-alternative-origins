@@ -1,14 +1,11 @@
 {
   "alternativeOrigins": [
-    "https://5pati-hyaaa-aaaal-qb3yq-cai.raw.icp0.io",
     "https://7p3gx-jaaaa-aaaal-acbda-cai.icp0.io",
-    "https://7p3gx-jaaaa-aaaal-acbda-cai.raw.icp0.io",
     "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
-    "https://7p3gx-jaaaa-aaaal-acbda-cai.raw.ic0.app",
     "https://n7z64-2yaaa-aaaam-abnsa-cai.icp0.io",
     "https://awcae-maaaa-aaaam-abmyq-cai.icp0.io",
     "https://5pati-hyaaa-aaaal-qb3yq-cai.icp0.io",
-    "https://5pati-hyaaa-aaaal-qb3yq-cai.raw.icp0.io",
-    "http://localhost:8080"
+    "http://localhost:8080",
+    "https://ifxbl-nyaaa-aaaap-abroa-cai.icp0.io/"
   ]
 }
