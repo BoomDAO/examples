@@ -6,6 +6,8 @@ import {
 import { Principal } from '@dfinity/principal'
 import './candid.css';
 import { AuthClient } from "@dfinity/auth-client";
+// @ts-ignore
+import { idlFactory as World } from "./world.did.js";
 
 declare var flamegraph: any;
 declare var d3: any;
@@ -99,13 +101,20 @@ export async function fetchActor(canisterId: Principal, _identity: Identity): Pr
     }
   }
   if (!js) {
-    throw new Error('Cannot fetch candid file');
+    const agent = new HttpAgent({
+      identity: _identity,
+      host: "https://icp0.io/",
+    });
+    return Actor.createActor(World, {
+      agent,
+      canisterId: canisterId,
+    });
   }
   const dataUri = 'data:text/javascript;charset=utf-8,' + encodeURIComponent(js);
   const candid: any = await eval('import("' + dataUri + '")');
   const agent = new HttpAgent({
     identity: _identity,
-    host: "https://ic0.app/",
+    host: "https://icp0.io/",
   });
   return Actor.createActor(candid.idlFactory, {
     agent,
@@ -180,7 +189,6 @@ export async function getProfiling(canisterId: Principal): Promise<Array<[number
   }
 }
 function decodeProfiling(input: Array<[number, bigint]>) {
-  //console.log(input);
   if (!input) {
     return [];
   }
@@ -226,7 +234,6 @@ function decodeProfiling(input: Array<[number, bigint]>) {
 }
 async function renderFlameGraph(profiler: any) {
   const profiling = decodeProfiling(await profiler());
-  //console.log(profiling);
   if (typeof profiling !== 'undefined') {
     let div = document.createElement('div');
     div.id = 'chart';
@@ -272,7 +279,6 @@ export function render(id: Principal, canister: ActorSubclass, profiling: bigint
   const sortedMethods = Actor.interfaceOf(canister)._fields.sort(([a], [b]) => (a > b ? 1 : -1));
   for (const [name, func] of sortedMethods) {
     // if (methods[name as keyof typeof methods] === true) {
-      console.log(methods[name as keyof typeof methods]);
       renderMethod(canister, name, func, profiler);
     // }
   }
@@ -284,7 +290,8 @@ function renderMethod(canister: ActorSubclass, name: string, idlFunc: IDL.FuncCl
 
   const sig = document.createElement('div');
   sig.className = 'signature';
-  sig.innerHTML = `<b>${name}</b>: ${idlFunc.display()}`;
+  // sig.innerHTML = `<b>${name}</b>: ${idlFunc.display()}`;
+  sig.innerHTML = `<b>${name}</b> `;
   item.appendChild(sig);
 
   const methodListItem = document.createElement('li');
