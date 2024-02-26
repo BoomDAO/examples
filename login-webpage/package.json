@@ -38,11 +38,6 @@
     "last 2 edge version"
   ],
   "dependencies": {
-    "@dfinity/agent": "^0.19.3",
-    "@dfinity/auth-client": "^0.19.3",
-    "@dfinity/identity": "^0.19.3",
-    "@dfinity/principal": "^0.19.3",
-    "@nfid/embed": "^0.10.0-alpha.12",
-    "zlib": "^1.0.5"
+    "@nfid/embed": "^0.10.1-alpha.6"
   }
 }
