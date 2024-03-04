@@ -209,6 +209,7 @@ export const idlFactory = ({ IDL }) => {
     'uid' : IDL.Text,
   });
   const Result_2 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Null });
+  const Result_9 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const ActionOutcomeHistory = IDL.Record({
     'wid' : worldId,
     'appliedAt' : IDL.Nat,
@@ -340,6 +341,11 @@ export const idlFactory = ({ IDL }) => {
         [Result_2],
         [],
       ),
+    'deleteActionStateForUser' : IDL.Func(
+        [IDL.Record({ 'aid' : IDL.Text, 'uid' : IDL.Text })],
+        [Result_9],
+        [],
+      ),
     'deleteAllActionLockStates' : IDL.Func([], [], []),
     'deleteAllActions' : IDL.Func([], [Result_2], []),
     'deleteAllConfigs' : IDL.Func([], [Result_2], []),
@@ -354,6 +360,7 @@ export const idlFactory = ({ IDL }) => {
         [Result_4],
         [],
       ),
+    'deleteUser' : IDL.Func([IDL.Record({ 'uid' : userId })], [], []),
     'editAction' : IDL.Func([IDL.Record({ 'aid' : IDL.Text })], [Action], []),
     'editConfig' : IDL.Func(
         [IDL.Record({ 'cid' : IDL.Text })],
@@ -393,6 +400,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Record({ 'uid' : IDL.Text })],
         [Result_6],
         [],
+      ),
+    'getAllUserActionStatesComposite' : IDL.Func(
+        [IDL.Record({ 'uid' : IDL.Text })],
+        [Result_6],
+        ['composite_query'],
       ),
     'getAllUserEntities' : IDL.Func(
         [IDL.Record({ 'uid' : IDL.Text, 'page' : IDL.Opt(IDL.Nat) })],
@@ -443,6 +455,7 @@ export const idlFactory = ({ IDL }) => {
     'logsGet' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'logsGetCount' : IDL.Func([], [IDL.Nat], ['query']),
     'processAction' : IDL.Func([ActionArg], [Result_3], []),
+    'processActionAwait' : IDL.Func([ActionArg], [Result_3], []),
     'removeAdmin' : IDL.Func([IDL.Record({ 'principal' : IDL.Text })], [], []),
     'removeAllUserNodeRef' : IDL.Func([], [], []),
     'removeEntityPermission' : IDL.Func([EntityPermission], [], []),
@@ -481,4 +494,4 @@ export const idlFactory = ({ IDL }) => {
   });
   return WorldTemplate;
 };
-export const init = ({ IDL }) => { return []; };
+export const init = ({ IDL }) => { return [IDL.Principal]; };

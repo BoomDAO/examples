@@ -16,16 +16,16 @@ websocket.addEventListener('open', () => {
   console.log('WebSocket connection established.');
 });
 
-websocket.addEventListener('message', (event) => {
-  let websocketMessage = JSON.parse(event.data);
+// websocket.addEventListener('message', (event) => {
+//   let websocketMessage = JSON.parse(event.data);
 
-  switch (websocketMessage.type) {
-    case "targetCanisterIds":
-      break;
-    default:
-      break;
-  }
-});
+//   switch (websocketMessage.type) {
+//     case "targetCanisterIds":
+//       break;
+//     default:
+//       break;
+//   }
+// });
 
 function sendWebsocketMessage(websocketMessage) {
   websocket.send(websocketMessage);
@@ -65,22 +65,22 @@ export async function GetNfidIdentity() {
 }
 
 // UNUSED
-export async function GetInternetIdentity() {
-  let authClient = await AuthClient.create(
-    {
-      storage: storage,
-      keyType: 'Ed25519'
-    }
-  );
-  await new Promise((resolve) => {
-    authClient.login({
-      identityProvider: "https://identity.icp0.io",
-      onSuccess: resolve,
-    });
-  });
-  const identity = authClient.getIdentity();
-  // console.log("This is your identity: " + JSON.stringify(identity))
-  let websocketMessage = { type: "identityJson", content: JSON.stringify(identity) }
-  sendWebsocketMessage(JSON.stringify(websocketMessage));
-  window.close();
-}
+// export async function GetInternetIdentity() {
+//   let authClient = await AuthClient.create(
+//     {
+//       storage: storage,
+//       keyType: 'Ed25519'
+//     }
+//   );
+//   await new Promise((resolve) => {
+//     authClient.login({
+//       identityProvider: "https://identity.icp0.io",
+//       onSuccess: resolve,
+//     });
+//   });
+//   const identity = authClient.getIdentity();
+//   // console.log("This is your identity: " + JSON.stringify(identity))
+//   let websocketMessage = { type: "identityJson", content: JSON.stringify(identity) }
+//   sendWebsocketMessage(JSON.stringify(websocketMessage));
+//   window.close();
+// }
