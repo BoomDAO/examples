@@ -51,47 +51,47 @@ async function main() {
           "/authenticate/?applicationName=" + APPLICATION_NAME + "&applicationLogo=" + APPLICATION_LOGO_URL + "#authorize";
         const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
 
-        // const authClient = await AuthClient.create({
-        //   idleOptions: {
-        //     idleTimeout: 1000 * 60 * 60 * 24, // set to 24 hrs
-        //     // disableDefaultIdleCallback: true // disable the default reload behavior
-        //   }
-        // });
-        const nfid = await NFID.init({
-          application: {
-            name: APPLICATION_NAME,
-            logo: APPLICATION_LOGO_URL
-          },
+        const authClient = await AuthClient.create({
+          idleOptions: {
+            idleTimeout: 1000 * 60 * 60 * 24, // set to 24 hrs
+            // disableDefaultIdleCallback: true // disable the default reload behavior
+          }
         });
-        // await new Promise((resolve, reject) => {
-        //   authClient.login({
-        //     identityProvider: NFID_AUTH_URL,
-        //     windowOpenerFeatures:
-        //       `left=${window.screen.width / 2 - 525 / 2}, ` +
-        //       `top=${window.screen.height / 2 - 705 / 2},` +
-        //       `toolbar=0,location=0,menubar=0,width=525,height=705`,
-        //     derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
-        //     maxTimeToLive: BigInt(15 * 24 * 60 * 60 * 1000 * 1000 * 1000), //set to 15 days
-        //     onSuccess: () => {
-        //       resolve(true);
-        //     },
-        //     onError: (err) => {
-        //       console.log("error", err);
-        //       reject();
-        //     },
-        //   });
+        // const nfid = await NFID.init({
+        //   application: {
+        //     name: APPLICATION_NAME,
+        //     logo: APPLICATION_LOGO_URL
+        //   },
         // });
-        let identity = undefined;
-        if(nfid.isAuthenticated) {
-          identity = nfid.getIdentity();
-        } else {
-          const delegationIdentity: Identity = await nfid.getDelegation({
-            targets: [],
+        await new Promise((resolve, reject) => {
+          authClient.login({
+            identityProvider: NFID_AUTH_URL,
+            windowOpenerFeatures:
+              `left=${window.screen.width / 2 - 525 / 2}, ` +
+              `top=${window.screen.height / 2 - 705 / 2},` +
+              `toolbar=0,location=0,menubar=0,width=525,height=705`,
             derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
-            maxTimeToLive: BigInt(24) * BigInt(3_600_000_000_000) // 24 hrs
+            maxTimeToLive: BigInt(15 * 24 * 60 * 60 * 1000 * 1000 * 1000), //set to 15 days
+            onSuccess: () => {
+              resolve(true);
+            },
+            onError: (err) => {
+              console.log("error", err);
+              reject();
+            },
           });
-          identity = delegationIdentity;
-        };
+        });
+        let identity = authClient.getIdentity();
+        // if(nfid.isAuthenticated) {
+        //   identity = nfid.getIdentity();
+        // } else {
+        //   const delegationIdentity: Identity = await nfid.getDelegation({
+        //     targets: [],
+        //     derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
+        //     maxTimeToLive: BigInt(24) * BigInt(3_600_000_000_000) // 24 hrs
+        //   });
+        //   identity = delegationIdentity;
+        // };
         if (identity == undefined) {
           alert("Please Login!");
           console.log("not logged in");
