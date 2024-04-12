@@ -40,75 +40,80 @@ async function main() {
       }
     });
   } else {
-      const loginButton = document.getElementById("login-button")!;
-      const app = document.getElementById("app")!;
-      const userId = document.getElementById("principal");
-      const accId = document.getElementById("account");
-      loginButton.addEventListener("click", async () => {
-        const APPLICATION_NAME = "BoomDAO";
-        const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
-        const AUTH_PATH =
-          "/authenticate/?applicationName=" + APPLICATION_NAME + "&applicationLogo=" + APPLICATION_LOGO_URL + "#authorize";
-        const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
+    const loginButton = document.getElementById("login-button")!;
+    const app = document.getElementById("app")!;
+    const userId = document.getElementById("principal");
+    const accId = document.getElementById("account");
+    loginButton.addEventListener("click", async () => {
+      const APPLICATION_NAME = "BoomDAO";
+      const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
+      const AUTH_PATH =
+        "/authenticate/?applicationName=" + APPLICATION_NAME + "&applicationLogo=" + APPLICATION_LOGO_URL + "#authorize";
+      const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
 
-        const authClient = await AuthClient.create({
-          idleOptions: {
-            idleTimeout: 1000 * 60 * 60 * 24, // set to 24 hrs
-            // disableDefaultIdleCallback: true // disable the default reload behavior
-          }
-        });
-        // const nfid = await NFID.init({
-        //   application: {
-        //     name: APPLICATION_NAME,
-        //     logo: APPLICATION_LOGO_URL
-        //   },
-        // });
-        await new Promise((resolve, reject) => {
-          authClient.login({
-            identityProvider: NFID_AUTH_URL,
-            windowOpenerFeatures:
-              `left=${window.screen.width / 2 - 525 / 2}, ` +
-              `top=${window.screen.height / 2 - 705 / 2},` +
-              `toolbar=0,location=0,menubar=0,width=525,height=705`,
-            derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
-            maxTimeToLive: BigInt(15 * 24 * 60 * 60 * 1000 * 1000 * 1000), //set to 15 days
-            onSuccess: () => {
-              resolve(true);
-            },
-            onError: (err) => {
-              console.log("error", err);
-              reject();
-            },
-          });
-        });
-        let identity = authClient.getIdentity();
-        // if(nfid.isAuthenticated) {
-        //   identity = nfid.getIdentity();
-        // } else {
-        //   const delegationIdentity: Identity = await nfid.getDelegation({
-        //     targets: [],
-        //     derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
-        //     maxTimeToLive: BigInt(24) * BigInt(3_600_000_000_000) // 24 hrs
-        //   });
-        //   identity = delegationIdentity;
-        // };
-        if (identity == undefined) {
-          alert("Please Login!");
-          console.log("not logged in");
-        } else {
-          document.title = `Canister ${cid}`;
-          loginButton!.style.display = "none";
-          const canisterId = Principal.fromText(cid);
-          const profiling = await getCycles(canisterId);
-          const actor = await fetchActor(canisterId, identity);
-          const names = await getNames(canisterId);
-          render(canisterId, actor, profiling);
-          app!.style.display = "block";
-          userId!.innerText = identity!.getPrincipal().toString();
-          accId!.innerText = AccountIdentifier.fromPrincipal({ principal : identity!.getPrincipal(), subAccount : undefined,}).toHex();
+      const authClient = await AuthClient.create({
+        idleOptions: {
+          idleTimeout: 1000 * 60 * 60 * 24, // set to 24 hrs
+          // disableDefaultIdleCallback: true // disable the default reload behavior
         }
       });
-    }
+      // const nfid = await NFID.init({
+      //   application: {
+      //     name: APPLICATION_NAME,
+      //     logo: APPLICATION_LOGO_URL
+      //   },
+      //   idleOptions: {
+      //     idleTimeout: 1000 * 60 * 60 * 24, // set to 24 hrs
+      //     // disableDefaultIdleCallback: true // disable the default reload behavior
+      //   }
+      // });
+      await new Promise((resolve, reject) => {
+        authClient.login({
+          identityProvider: NFID_AUTH_URL,
+          windowOpenerFeatures:
+            `left=${window.screen.width / 2 - 525 / 2}, ` +
+            `top=${window.screen.height / 2 - 705 / 2},` +
+            `toolbar=0,location=0,menubar=0,width=525,height=705`,
+          derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
+          maxTimeToLive: BigInt(15 * 24 * 60 * 60 * 1000 * 1000 * 1000), //set to 15 days
+          onSuccess: () => {
+            resolve(true);
+          },
+          onError: (err) => {
+            console.log("error", err);
+            reject();
+          },
+        });
+      });
+      let identity = authClient.getIdentity();
+      // let identity = null;
+      // if(nfid.isAuthenticated) {
+      //   identity = nfid.getIdentity();
+      // } else {
+      //   const delegationIdentity: Identity = await nfid.getDelegation({
+      //     targets: [],
+      //     derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
+      //     maxTimeToLive: BigInt(24) * BigInt(3_600_000_000_000) // 24 hrs
+      //   });
+      //   identity = delegationIdentity;
+      // };
+      if (identity == undefined) {
+        alert("Please Login!");
+        console.log("not logged in");
+      } else {
+        document.title = `Canister ${cid}`;
+        loginButton!.style.display = "none";
+        const canisterId = Principal.fromText(cid);
+        const profiling = await getCycles(canisterId);
+        const actor = await fetchActor(canisterId, identity);
+        const names = await getNames(canisterId);
+        render(canisterId, actor, profiling);
+        app!.style.display = "block";
+        userId!.innerText = identity!.getPrincipal().toString();
+        accId!.innerText = AccountIdentifier.fromPrincipal({ principal: identity!.getPrincipal(), subAccount: undefined, }).toHex();
+      }
+    });
+  }
 }
 
 main().catch((err) => {

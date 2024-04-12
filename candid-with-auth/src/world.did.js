@@ -324,6 +324,12 @@ export const idlFactory = ({ IDL }) => {
     'createAction' : IDL.Func([Action], [Result_4], []),
     'createConfig' : IDL.Func([StableConfig], [Result_4], []),
     'createEntity' : IDL.Func([EntitySchema], [Result_4], []),
+    'createEntityForAllUsers' : IDL.Func(
+        [IDL.Record({ 'eid' : entityId, 'fields' : IDL.Vec(Field) })],
+        [Result_4],
+        [],
+      ),
+    'createMinigameWinAction' : IDL.Func([], [Result_4], []),
     'cycleBalance' : IDL.Func([], [IDL.Nat], ['query']),
     'deleteAction' : IDL.Func(
         [IDL.Record({ 'aid' : IDL.Text })],
@@ -428,6 +434,11 @@ export const idlFactory = ({ IDL }) => {
     'getGlobalPermissionsOfWorld' : IDL.Func([], [IDL.Vec(worldId)], []),
     'getOwner' : IDL.Func([], [IDL.Text], ['query']),
     'getProcessActionCount' : IDL.Func([], [IDL.Nat], ['query']),
+    'getUserEntitiesFromWorldNodeComposite' : IDL.Func(
+        [IDL.Record({ 'uid' : IDL.Text, 'page' : IDL.Opt(IDL.Nat) })],
+        [Result_5],
+        ['composite_query'],
+      ),
     'get_trusted_origins' : IDL.Func([], [IDL.Vec(IDL.Text)], []),
     'grantEntityPermission' : IDL.Func([EntityPermission], [], []),
     'grantGlobalPermission' : IDL.Func([GlobalPermission], [], []),
@@ -456,6 +467,7 @@ export const idlFactory = ({ IDL }) => {
     'logsGetCount' : IDL.Func([], [IDL.Nat], ['query']),
     'processAction' : IDL.Func([ActionArg], [Result_3], []),
     'processActionAwait' : IDL.Func([ActionArg], [Result_3], []),
+    'processActionForAllUsers' : IDL.Func([ActionArg], [], []),
     'removeAdmin' : IDL.Func([IDL.Record({ 'principal' : IDL.Text })], [], []),
     'removeAllUserNodeRef' : IDL.Func([], [], []),
     'removeEntityPermission' : IDL.Func([EntityPermission], [], []),

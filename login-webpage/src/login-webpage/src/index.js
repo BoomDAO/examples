@@ -40,8 +40,9 @@ export async function GetNfidIdentity() {
           logo: "https://i.postimg.cc/L4f471FF/logo.png"
         },
         storage: storage,
-        keyType: 'Ed25519'
-      });;
+        keyType: 'Ed25519',
+        idleOptions: { idleTimeout: 1000 * 60 * 60 * 24 },
+      });
     };
     if (identity == null) {
       identity = await nfid.getDelegation({
