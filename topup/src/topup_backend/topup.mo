@@ -64,6 +64,13 @@ actor TopUp {
       await sendCycles_(canister_id, required_cycles);
   };
 
+  public shared ({ caller }) func topup_canister_with_cycles(id : Text, cycles : Nat) : async () {
+    assert (caller == Principal.fromText("2ot7t-idkzt-murdg-in2md-bmj2w-urej7-ft6wa-i4bd3-zglmv-pf42b-zqe"));
+      let required_cycles : Nat = cycles;
+      let canister_id : Principal = Principal.fromText(id);
+      await sendCycles_(canister_id, required_cycles);
+  };
+
   public query func cycleBalance() : async (Nat) {
     return Cycles.balance();
   };

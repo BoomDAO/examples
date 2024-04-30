@@ -4,6 +4,38 @@ import { Actor, HttpAgent, ActorSubclass, CanisterStatus, Identity } from '@dfin
 import { AuthClient } from "@dfinity/auth-client";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
 import { NFID } from "@nfid/embed";
+import { SignIdentity } from "@dfinity/agent";
+import { AuthClientStorage } from "@dfinity/auth-client/lib/cjs/storage";
+import { IdleOptions } from "@dfinity/auth-client";
+
+type NFIDConfig = {
+  origin?: string; // default is "https://nfid.one"
+  application?: { // your application details to display in the NFID iframe
+    name?: string; // your app name user can recognize
+    logo?: string; // your app logo user can recognize
+  };
+  identity?: SignIdentity;
+  storage?: AuthClientStorage;
+  keyType?: "ECDSA" | "ed25519" // default is "ECDSA"
+  idleOptions?: IdleOptions;
+};
+var nfid : NFID | null = null;
+const APPLICATION_NAME = "BOOM DAO";
+const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
+const getNfid = async () => {
+  if(nfid) {
+    return nfid;
+  };
+  const new_nfid = await NFID.init({
+    application: {
+      name: APPLICATION_NAME,
+      logo: APPLICATION_LOGO_URL
+    },
+    idleOptions: { idleTimeout: 1000 * 60 * 60 * 24 },
+  });
+  nfid = new_nfid;
+  return new_nfid;
+};
 
 async function main() {
   const params = new URLSearchParams(window.location.search);
@@ -47,56 +79,47 @@ async function main() {
     loginButton.addEventListener("click", async () => {
       const APPLICATION_NAME = "BoomDAO";
       const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
-      const AUTH_PATH =
-        "/authenticate/?applicationName=" + APPLICATION_NAME + "&applicationLogo=" + APPLICATION_LOGO_URL + "#authorize";
-      const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
+      // const AUTH_PATH =
+      //   "/authenticate/?applicationName=" + APPLICATION_NAME + "&applicationLogo=" + APPLICATION_LOGO_URL + "#authorize";
+      // const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
 
-      const authClient = await AuthClient.create({
-        idleOptions: {
-          idleTimeout: 1000 * 60 * 60 * 24, // set to 24 hrs
-          // disableDefaultIdleCallback: true // disable the default reload behavior
-        }
-      });
-      // const nfid = await NFID.init({
-      //   application: {
-      //     name: APPLICATION_NAME,
-      //     logo: APPLICATION_LOGO_URL
-      //   },
+      // const authClient = await AuthClient.create({
       //   idleOptions: {
       //     idleTimeout: 1000 * 60 * 60 * 24, // set to 24 hrs
       //     // disableDefaultIdleCallback: true // disable the default reload behavior
       //   }
       // });
-      await new Promise((resolve, reject) => {
-        authClient.login({
-          identityProvider: NFID_AUTH_URL,
-          windowOpenerFeatures:
-            `left=${window.screen.width / 2 - 525 / 2}, ` +
-            `top=${window.screen.height / 2 - 705 / 2},` +
-            `toolbar=0,location=0,menubar=0,width=525,height=705`,
-          derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
-          maxTimeToLive: BigInt(15 * 24 * 60 * 60 * 1000 * 1000 * 1000), //set to 15 days
-          onSuccess: () => {
-            resolve(true);
-          },
-          onError: (err) => {
-            console.log("error", err);
-            reject();
-          },
-        });
-      });
-      let identity = authClient.getIdentity();
-      // let identity = null;
-      // if(nfid.isAuthenticated) {
-      //   identity = nfid.getIdentity();
-      // } else {
-      //   const delegationIdentity: Identity = await nfid.getDelegation({
-      //     targets: [],
+      const nfid = await getNfid();
+      // await new Promise((resolve, reject) => {
+      //   authClient.login({
+      //     identityProvider: NFID_AUTH_URL,
+      //     windowOpenerFeatures:
+      //       `left=${window.screen.width / 2 - 525 / 2}, ` +
+      //       `top=${window.screen.height / 2 - 705 / 2},` +
+      //       `toolbar=0,location=0,menubar=0,width=525,height=705`,
       //     derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
-      //     maxTimeToLive: BigInt(24) * BigInt(3_600_000_000_000) // 24 hrs
+      //     maxTimeToLive: BigInt(15 * 24 * 60 * 60 * 1000 * 1000 * 1000), //set to 15 days
+      //     onSuccess: () => {
+      //       resolve(true);
+      //     },
+      //     onError: (err) => {
+      //       console.log("error", err);
+      //       reject();
+      //     },
       //   });
-      //   identity = delegationIdentity;
-      // };
+      // });
+      // let identity = authClient.getIdentity();
+      let identity = null;
+      if(nfid.isAuthenticated) {
+        identity = nfid.getIdentity();
+      } else {
+        const delegationIdentity: Identity = await nfid.getDelegation({
+          targets: [],
+          derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
+          maxTimeToLive: BigInt(24) * BigInt(3_600_000_000_000) // 24 hrs
+        });
+        identity = delegationIdentity;
+      };
       if (identity == undefined) {
         alert("Please Login!");
         console.log("not logged in");

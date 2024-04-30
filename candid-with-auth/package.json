@@ -14,7 +14,7 @@
     "@dfinity/ledger-icp": "^2.2.1",
     "@dfinity/nns": "^4.0.1",
     "@dfinity/principal": "^1.0.1",
-    "@nfid/embed": "^0.10.1-alpha.6",
+    "@nfid/embed": "^0.10.3",
     "buffer": "6.0.3",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",

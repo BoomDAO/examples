@@ -38,6 +38,6 @@
     "last 2 edge version"
   ],
   "dependencies": {
-    "@nfid/embed": "^0.10.1-alpha.6"
+    "@nfid/embed": "^0.10.3"
   }
 }
