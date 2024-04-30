@@ -7,6 +7,7 @@ import { NFID } from "@nfid/embed";
 import { SignIdentity } from "@dfinity/agent";
 import { AuthClientStorage } from "@dfinity/auth-client/lib/cjs/storage";
 import { IdleOptions } from "@dfinity/auth-client";
+import React from "react";
 
 type NFIDConfig = {
   origin?: string; // default is "https://nfid.one"
@@ -19,28 +20,63 @@ type NFIDConfig = {
   keyType?: "ECDSA" | "ed25519" // default is "ECDSA"
   idleOptions?: IdleOptions;
 };
-var nfid : NFID | null = null;
+var nfid: NFID | null = null;
+var identity: Identity | undefined = undefined;
 const APPLICATION_NAME = "BOOM DAO";
 const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
+
+const assignIdentity = (nfid: NFID) => {
+  identity = nfid.getIdentity();
+};
 const getNfid = async () => {
-  if(nfid) {
+  if (nfid) {
+    console.log("nfid instance already exist!");
     return nfid;
+  } else {
+    const new_nfid = await NFID.init({
+      application: {
+        name: APPLICATION_NAME,
+        logo: APPLICATION_LOGO_URL
+      },
+      idleOptions: { idleTimeout: 1000 * 60 * 60 * 24 },
+    });
+    nfid = new_nfid;
+    console.log("new instance of nfid created!");
+    return new_nfid;
+  }
+};
+
+const checkAuth = async () => {
+  try {
+    const _nfid = await getNfid();
+    const isAuthenticated = _nfid.isAuthenticated;
+    if (!isAuthenticated) return;
+    nfid = _nfid;
+    assignIdentity(_nfid);
+  } catch (error) {
+    console.log("err while checking auth", error);
+    nfid = null;
+    identity = undefined;
   };
-  const new_nfid = await NFID.init({
-    application: {
-      name: APPLICATION_NAME,
-      logo: APPLICATION_LOGO_URL
-    },
-    idleOptions: { idleTimeout: 1000 * 60 * 60 * 24 },
+};
+
+const nfidEmbedLogin = async (nfid: NFID) => {
+  if (nfid.isAuthenticated) {
+    return nfid.getIdentity();
+  };
+  const delegationIdentity: Identity = await nfid.getDelegation({
+    targets: [],
+    derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
+    maxTimeToLive: BigInt(24) * BigInt(3_600_000_000_000) // 24 hrs
   });
-  nfid = new_nfid;
-  return new_nfid;
+  return delegationIdentity;
 };
 
 async function main() {
   const params = new URLSearchParams(window.location.search);
   const cid = params.get("id");
   const user = params.get("user");
+  await checkAuth();
   if (!cid) {
     document.body.innerHTML = `<div id="main-content">
     <label>Provide a canister ID: </label>
@@ -77,8 +113,8 @@ async function main() {
     const userId = document.getElementById("principal");
     const accId = document.getElementById("account");
     loginButton.addEventListener("click", async () => {
-      const APPLICATION_NAME = "BoomDAO";
-      const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
+      // const APPLICATION_NAME = "BoomDAO";
+      // const APPLICATION_LOGO_URL = "https://i.postimg.cc/L4f471FF/logo.png";
       // const AUTH_PATH =
       //   "/authenticate/?applicationName=" + APPLICATION_NAME + "&applicationLogo=" + APPLICATION_LOGO_URL + "#authorize";
       // const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
@@ -89,7 +125,6 @@ async function main() {
       //     // disableDefaultIdleCallback: true // disable the default reload behavior
       //   }
       // });
-      const nfid = await getNfid();
       // await new Promise((resolve, reject) => {
       //   authClient.login({
       //     identityProvider: NFID_AUTH_URL,
@@ -109,16 +144,15 @@ async function main() {
       //   });
       // });
       // let identity = authClient.getIdentity();
-      let identity = null;
-      if(nfid.isAuthenticated) {
+
+      const nfid = await getNfid();
+      const isAuthenticated = nfid.isAuthenticated;
+      if (isAuthenticated) {
         identity = nfid.getIdentity();
-      } else {
-        const delegationIdentity: Identity = await nfid.getDelegation({
-          targets: [],
-          derivationOrigin: "https://7p3gx-jaaaa-aaaal-acbda-cai.ic0.app",
-          maxTimeToLive: BigInt(24) * BigInt(3_600_000_000_000) // 24 hrs
-        });
-        identity = delegationIdentity;
+      }
+      else {
+        identity = await nfidEmbedLogin(nfid);
+        await checkAuth();
       };
       if (identity == undefined) {
         alert("Please Login!");
