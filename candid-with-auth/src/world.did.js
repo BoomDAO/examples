@@ -329,7 +329,32 @@ export const idlFactory = ({ IDL }) => {
         [Result_4],
         [],
       ),
-    'createMinigameWinAction' : IDL.Func([], [Result_4], []),
+    'createTestQuestActions' : IDL.Func(
+        [
+          IDL.Record({
+            'actionId_1' : IDL.Text,
+            'actionId_2' : IDL.Text,
+            'game_world_canister_id' : IDL.Text,
+          }),
+        ],
+        [Result_4],
+        [],
+      ),
+    'createTestQuestConfigs' : IDL.Func(
+        [
+          IDL.Vec(
+            IDL.Record({
+              'cid' : IDL.Text,
+              'image_url' : IDL.Text,
+              'name' : IDL.Text,
+              'description' : IDL.Text,
+              'quest_url' : IDL.Text,
+            })
+          ),
+        ],
+        [Result_4],
+        [],
+      ),
     'cycleBalance' : IDL.Func([], [IDL.Nat], ['query']),
     'deleteAction' : IDL.Func(
         [IDL.Record({ 'aid' : IDL.Text })],
@@ -364,6 +389,11 @@ export const idlFactory = ({ IDL }) => {
     'deleteEntity' : IDL.Func(
         [IDL.Record({ 'eid' : IDL.Text, 'uid' : IDL.Text })],
         [Result_4],
+        [],
+      ),
+    'deleteTestQuestActionStateForUser' : IDL.Func(
+        [IDL.Record({ 'aid' : IDL.Text })],
+        [Result_9],
         [],
       ),
     'deleteUser' : IDL.Func([IDL.Record({ 'uid' : userId })], [], []),
@@ -439,6 +469,21 @@ export const idlFactory = ({ IDL }) => {
         [Result_5],
         ['composite_query'],
       ),
+    'getUserEntitiesFromWorldNodeFilteredSortingComposite' : IDL.Func(
+        [
+          IDL.Record({
+            'uid' : IDL.Text,
+            'order' : IDL.Variant({
+              'Descending' : IDL.Null,
+              'Ascending' : IDL.Null,
+            }),
+            'page' : IDL.Opt(IDL.Nat),
+            'fieldName' : IDL.Text,
+          }),
+        ],
+        [Result_5],
+        ['composite_query'],
+      ),
     'get_trusted_origins' : IDL.Func([], [IDL.Vec(IDL.Text)], []),
     'grantEntityPermission' : IDL.Func([EntityPermission], [], []),
     'grantGlobalPermission' : IDL.Func([GlobalPermission], [], []),
@@ -478,6 +523,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'resetActionsAndConfigsToHardcodedTemplate' : IDL.Func([], [Result_2], []),
+    'setDevWorldCanisterId' : IDL.Func([IDL.Text], [], []),
     'validateConstraints' : IDL.Func(
         [IDL.Text, actionId, IDL.Opt(ActionConstraint)],
         [IDL.Record({ 'aid' : IDL.Text, 'status' : IDL.Bool })],
